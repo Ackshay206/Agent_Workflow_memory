@@ -88,6 +88,7 @@ class WebAgent:
 
         trajectory: list[dict] = []
         success = False
+        start_time = datetime.now(timezone.utc)
 
         async with async_playwright() as pw:
             browser = await pw.chromium.launch(headless=headless)
@@ -180,16 +181,18 @@ class WebAgent:
             finally:
                 await browser.close()
 
+        end_time = datetime.now(timezone.utc)
         result = {
             "task_id": task_id,
             "params": merged_params,
             "instruction": instruction,
             "success": success,
             "steps": len(trajectory),
+            "duration_seconds": (end_time - start_time).total_seconds(),
             "trajectory": trajectory,
             "had_workflow": workflow_text is not None,
             "model": self.model,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": end_time.isoformat(),
         }
 
         # Save trajectory to logs

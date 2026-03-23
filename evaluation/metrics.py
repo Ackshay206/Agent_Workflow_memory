@@ -33,6 +33,9 @@ def compute_metrics(results: list[dict]) -> dict:
     success_steps = [r["steps"] for r in successes if r.get("steps", 0) > 0]
     failure_steps = [r["steps"] for r in failures if r.get("steps", 0) > 0]
 
+    all_times = [r["duration_seconds"] for r in results if r.get("duration_seconds") is not None]
+    success_times = [r["duration_seconds"] for r in successes if r.get("duration_seconds") is not None]
+
     metrics = {
         "total_runs": total,
         "successes": len(successes),
@@ -41,6 +44,8 @@ def compute_metrics(results: list[dict]) -> dict:
         "avg_steps_all": _avg(all_steps),
         "avg_steps_success": _avg(success_steps),
         "avg_steps_failure": _avg(failure_steps),
+        "avg_time_all": _avg(all_times),
+        "avg_time_success": _avg(success_times),
     }
 
     # Per-task breakdown
@@ -54,6 +59,7 @@ def compute_metrics(results: list[dict]) -> dict:
         t_succ = [r for r in task_results if r.get("success")]
         t_s_steps = [r["steps"] for r in t_succ if r.get("steps", 0) > 0]
         t_all_steps = [r["steps"] for r in task_results if r.get("steps", 0) > 0]
+        t_all_times = [r["duration_seconds"] for r in task_results if r.get("duration_seconds") is not None]
 
         metrics["per_task"][task_id] = {
             "total_runs": t_total,
@@ -61,6 +67,7 @@ def compute_metrics(results: list[dict]) -> dict:
             "success_rate": len(t_succ) / t_total if t_total else 0.0,
             "avg_steps_all": _avg(t_all_steps),
             "avg_steps_success": _avg(t_s_steps),
+            "avg_time_all": _avg(t_all_times),
         }
 
     return metrics
@@ -85,14 +92,19 @@ def format_metrics(metrics: dict, label: str = "Results") -> str:
         f"Avg steps (success): {metrics['avg_steps_success']:.1f}  |  "
         f"Avg steps (failure): {metrics['avg_steps_failure']:.1f}"
     )
+    lines.append(
+        f"  Avg time  (all): {metrics['avg_time_all']:.1f}s  |  "
+        f"Avg time  (success): {metrics['avg_time_success']:.1f}s"
+    )
 
     if "per_task" in metrics and metrics["per_task"]:
-        lines.append(f"\n  {'Task Type':<25} {'Success Rate':>12} {'Avg Steps':>10} {'Runs':>6}")
-        lines.append(f"  {'-' * 55}")
+        lines.append(f"\n  {'Task Type':<25} {'Success Rate':>12} {'Avg Steps':>10} {'Avg Time':>10} {'Runs':>6}")
+        lines.append(f"  {'-' * 67}")
         for task_id, tm in metrics["per_task"].items():
             lines.append(
                 f"  {task_id:<25} {tm['success_rate']:>11.1%} "
-                f"{tm['avg_steps_all']:>10.1f} {tm['total_runs']:>6}"
+                f"{tm['avg_steps_all']:>10.1f} "
+                f"{tm['avg_time_all']:>9.1f}s {tm['total_runs']:>6}"
             )
 
     lines.append(f"{'=' * 65}\n")
@@ -109,15 +121,16 @@ def format_comparison(
     lines.append("  COMPARISON")
     lines.append(f"{'=' * 70}")
     lines.append(
-        f"  {'Condition':<20} {'Success Rate':>12} {'Steps (success)':>16} {'Steps (all)':>12}"
+        f"  {'Condition':<20} {'Success Rate':>12} {'Steps (success)':>16} {'Steps (all)':>12} {'Time (all)':>11}"
     )
-    lines.append(f"  {'-' * 62}")
+    lines.append(f"  {'-' * 74}")
 
     for label, m in [(label_a, metrics_a), (label_b, metrics_b)]:
         lines.append(
             f"  {label:<20} {m['success_rate']:>11.1%} "
             f"{m['avg_steps_success']:>16.1f} "
-            f"{m['avg_steps_all']:>12.1f}"
+            f"{m['avg_steps_all']:>12.1f} "
+            f"{m['avg_time_all']:>10.1f}s"
         )
 
     lines.append(f"\n  Per-Task Breakdown:")
@@ -131,7 +144,8 @@ def format_comparison(
             tm = m.get("per_task", {}).get(task_id, {})
             sr = tm.get("success_rate", 0)
             avs = tm.get("avg_steps_all", 0)
-            lines.append(f"    {label:<18} {sr:>11.1%} {avs:>10.1f} steps")
+            avt = tm.get("avg_time_all", 0)
+            lines.append(f"    {label:<18} {sr:>11.1%} {avs:>10.1f} steps  {avt:>6.1f}s")
 
     lines.append(f"{'=' * 70}\n")
     return "\n".join(lines)
