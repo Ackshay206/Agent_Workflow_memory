@@ -1,0 +1,61 @@
+(venv) ackshay@Ackshays-MacBook-Air workflow-memory % python -m experiments.compare
+
+=================================================================
+  Baseline — No Workflow Memory
+=================================================================
+  Total runs: 9  |  Success: 9  |  Failure: 0
+  Success rate: 100.0%
+  Avg steps (all): 7.3  |  Avg steps (success): 7.3  |  Avg steps (failure): 0.0
+  Avg time  (all): 15.8s  |  Avg time  (success): 15.8s
+
+  Task Type                 Success Rate  Avg Steps   Avg Time   Runs
+  -------------------------------------------------------------------
+  flight_search                  100.0%        8.0      17.0s      3
+  product_search                 100.0%        6.3      13.0s      3
+  restaurant_reservation         100.0%        7.7      17.2s      3
+=================================================================
+
+
+=================================================================
+  With Workflow Memory
+=================================================================
+  Total runs: 9  |  Success: 9  |  Failure: 0
+  Success rate: 100.0%
+  Avg steps (all): 7.3  |  Avg steps (success): 7.3  |  Avg steps (failure): 0.0
+  Avg time  (all): 10.7s  |  Avg time  (success): 10.7s
+
+  Task Type                 Success Rate  Avg Steps   Avg Time   Runs
+  -------------------------------------------------------------------
+  flight_search                  100.0%        8.0      11.2s      3
+  product_search                 100.0%        6.0       9.3s      3
+  restaurant_reservation         100.0%        8.0      11.7s      3
+=================================================================
+
+
+======================================================================
+  COMPARISON
+======================================================================
+  Condition            Success Rate  Steps (success)  Steps (all)  Time (all)
+  --------------------------------------------------------------------------
+  No Memory                 100.0%              7.3          7.3       15.8s
+  With Workflow             100.0%              7.3          7.3       10.7s
+
+  Per-Task Breakdown:
+
+  flight_search:
+    No Memory               100.0%        8.0 steps    17.0s
+    With Workflow           100.0%        8.0 steps    11.2s
+
+  product_search:
+    No Memory               100.0%        6.3 steps    13.0s
+    With Workflow           100.0%        6.0 steps     9.3s
+
+  restaurant_reservation:
+    No Memory               100.0%        7.7 steps    17.2s
+    With Workflow           100.0%        8.0 steps    11.7s
+======================================================================
+
+  Key Findings:
+  • Success rate unchanged: 100.0%
+  • Avg steps: 7.3 → 7.3
+  • Time reduced: 15.8s → 10.7s (-32%)
