@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+python-multipart
+playwright
+openai
+python-dotenv
+numpy

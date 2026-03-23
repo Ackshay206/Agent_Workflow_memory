@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Environment variables
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs and runtime artifacts
+logs/*.json
+logs/*.log
+workflows/*.json
+
+# Playwright
+playwright-report/
+test-results/
+
+# Misc
+*.bak
+*.tmp
